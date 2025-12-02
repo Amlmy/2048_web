@@ -1,6 +1,6 @@
-// ====== 常量与状态 ======
+// ===== 常量与状态 =====
 const SIZE = 4;
-const BEST_KEY = 'bestScore_2048_plus';
+const BEST_KEY = "bestScore_2048_plus";
 
 let board = [];
 let score = 0;
@@ -8,25 +8,25 @@ let bestScore = 0;
 let history = [];
 let gameOver = false;
 
-// DOM
+// ===== DOM 引用 =====
 const gridEl = document.getElementById("grid");
 const scoreEl = document.getElementById("score");
 const bestEl = document.getElementById("best");
 const overlayEl = document.getElementById("overlay");
 
-// 按钮
 const restartBtn = document.getElementById("restartBtn");
 const undoBtn = document.getElementById("undoBtn");
 const tryAgainBtn = document.getElementById("tryAgainBtn");
 const themeBtn = document.getElementById("themeBtn");
+const gameContainerEl = document.querySelector(".game-container");
 
-// ====== 音效 ======
+// ===== 音效 =====
 const moveSound = new Audio("sounds/move.mp3");
 const mergeSound = new Audio("sounds/merge.mp3");
 moveSound.preload = "auto";
 mergeSound.preload = "auto";
 
-// ====== 初始化网格 DOM ======
+// ===== 工具函数 =====
 function createGrid() {
   gridEl.innerHTML = "";
   for (let i = 0; i < SIZE * SIZE; i++) {
@@ -36,9 +36,8 @@ function createGrid() {
   }
 }
 
-// ====== 工具函数 ======
 function deepCopy(bd) {
-  return bd.map(r => r.slice());
+  return bd.map((row) => row.slice());
 }
 
 function arraysEqual(a, b) {
@@ -48,7 +47,7 @@ function arraysEqual(a, b) {
 function saveHistory() {
   history.push({
     board: deepCopy(board),
-    score
+    score,
   });
 }
 
@@ -57,36 +56,35 @@ function undo() {
   const prev = history.pop();
   board = deepCopy(prev.board);
   score = prev.score;
-  scoreEl.textContent = score;
+  scoreEl.textContent = score.toString();
   render();
   gameOver = false;
-  overlayEl.classList.remove('show');
+  overlayEl.classList.remove("show");
 }
 
-// 记录/加载最高分
+// ===== 最高分相关 =====
 function loadBestScore() {
   const saved = localStorage.getItem(BEST_KEY);
   if (saved) {
     bestScore = parseInt(saved, 10) || 0;
-    bestEl.textContent = bestScore;
   } else {
     bestScore = 0;
-    bestEl.textContent = "0";
   }
+  bestEl.textContent = bestScore.toString();
 }
 
 function updateScore(delta) {
   score += delta;
-  scoreEl.textContent = score;
+  scoreEl.textContent = score.toString();
 
   if (score > bestScore) {
     bestScore = score;
-    bestEl.textContent = bestScore;
+    bestEl.textContent = bestScore.toString();
     localStorage.setItem(BEST_KEY, bestScore.toString());
   }
 }
 
-// ====== 随机生成新方块 ======
+// ===== 随机方块 =====
 function addRandomTile(changes) {
   const empty = [];
   for (let r = 0; r < SIZE; r++) {
@@ -103,7 +101,7 @@ function addRandomTile(changes) {
   changes.push({ ...pos, type: "new" });
 }
 
-// ====== 渲染 ======
+// ===== 渲染 =====
 function render() {
   const cells = gridEl.children;
   let index = 0;
@@ -128,28 +126,24 @@ function renderWithAnimation(changes) {
     const cell = cells[idx(ch.r, ch.c)];
     if (ch.type === "new") cell.classList.add("new-tile");
     if (ch.type === "merge") cell.classList.add("merge");
-
     setTimeout(() => {
       cell.classList.remove("new-tile", "merge");
     }, 300);
   }
 }
 
-// ====== 能否继续移动 ======
+// ===== 是否还能移动 =====
 function canMove() {
-  // 还有空格
   for (let r = 0; r < SIZE; r++) {
     for (let c = 0; c < SIZE; c++) {
       if (board[r][c] === 0) return true;
     }
   }
-  // 横向相邻相等
   for (let r = 0; r < SIZE; r++) {
     for (let c = 0; c < SIZE - 1; c++) {
       if (board[r][c] === board[r][c + 1]) return true;
     }
   }
-  // 纵向相邻相等
   for (let c = 0; c < SIZE; c++) {
     for (let r = 0; r < SIZE - 1; r++) {
       if (board[r][c] === board[r + 1][c]) return true;
@@ -158,9 +152,9 @@ function canMove() {
   return false;
 }
 
-// ====== 合并与滑动 ======
+// ===== 滑动与合并核心 =====
 function slide(arr, changes, lineIndex, isRow, direction) {
-  const filtered = arr.filter(v => v !== 0);
+  const filtered = arr.filter((v) => v !== 0);
   const result = [];
   let posIndex = 0;
 
@@ -169,16 +163,16 @@ function slide(arr, changes, lineIndex, isRow, direction) {
       const merged = filtered[i] * 2;
       result.push(merged);
 
-      // 播放合并声音
+      // 合并音效
       mergeSound.currentTime = 0;
       mergeSound.play();
 
       updateScore(merged);
 
-      // 计算合并方块坐标（动画用，方向为近似位置即可）
+      // 估算动画坐标
       let r, c;
       if (isRow) {
-        if (direction === 'left') {
+        if (direction === "left") {
           r = lineIndex;
           c = posIndex;
         } else {
@@ -186,7 +180,7 @@ function slide(arr, changes, lineIndex, isRow, direction) {
           c = SIZE - 1 - posIndex;
         }
       } else {
-        if (direction === 'up') {
+        if (direction === "up") {
           r = posIndex;
           c = lineIndex;
         } else {
@@ -196,7 +190,7 @@ function slide(arr, changes, lineIndex, isRow, direction) {
       }
       changes.push({ r, c, type: "merge" });
 
-      i++; // 跳过下一个
+      i++;
     } else {
       result.push(filtered[i]);
     }
@@ -219,28 +213,28 @@ function move(direction) {
     for (let r = 0; r < SIZE; r++) {
       const row = board[r];
       if (direction === "left") {
-        const newRow = slide(row, changes, r, true, 'left');
+        const newRow = slide(row, changes, r, true, "left");
         if (!arraysEqual(row, newRow)) moved = true;
         board[r] = newRow;
       } else {
         const rev = row.slice().reverse();
-        const newRow = slide(rev, changes, r, true, 'right').reverse();
+        const newRow = slide(rev, changes, r, true, "right").reverse();
         if (!arraysEqual(row, newRow)) moved = true;
         board[r] = newRow;
       }
     }
   } else {
     for (let c = 0; c < SIZE; c++) {
-      const col = board.map(r => r[c]);
+      const col = board.map((row) => row[c]);
       if (direction === "up") {
-        const newCol = slide(col, changes, c, false, 'up');
+        const newCol = slide(col, changes, c, false, "up");
         for (let r = 0; r < SIZE; r++) {
           if (board[r][c] !== newCol[r]) moved = true;
           board[r][c] = newCol[r];
         }
       } else {
         const rev = col.slice().reverse();
-        const newCol = slide(rev, changes, c, false, 'down').reverse();
+        const newCol = slide(rev, changes, c, false, "down").reverse();
         for (let r = 0; r < SIZE; r++) {
           if (board[r][c] !== newCol[r]) moved = true;
           board[r][c] = newCol[r];
@@ -250,12 +244,11 @@ function move(direction) {
   }
 
   if (!moved) {
-    // 没有实际移动，撤销这次历史记录
     history.pop();
     return;
   }
 
-  // 播放移动声音
+  // 移动音效
   moveSound.currentTime = 0;
   moveSound.play();
 
@@ -268,7 +261,7 @@ function move(direction) {
   }
 }
 
-// ====== 新游戏 ======
+// ===== 新游戏 =====
 function newGame() {
   board = Array.from({ length: SIZE }, () => Array(SIZE).fill(0));
   score = 0;
@@ -282,44 +275,70 @@ function newGame() {
   render();
 }
 
-// ====== 触摸（手机滑动） ======
+// ===== 手机触摸滑动 =====
 let startX = 0;
 let startY = 0;
 
-gridEl.addEventListener("touchstart", e => {
-  const t = e.touches[0];
-  startX = t.clientX;
-  startY = t.clientY;
-}, { passive: true });
+gameContainerEl.addEventListener(
+  "touchstart",
+  (e) => {
+    if (e.touches.length > 1) return;
+    const t = e.touches[0];
+    startX = t.clientX;
+    startY = t.clientY;
+  },
+  { passive: false }
+);
 
-gridEl.addEventListener("touchend", e => {
-  const t = e.changedTouches[0];
-  const dx = t.clientX - startX;
-  const dy = t.clientY - startY;
+gameContainerEl.addEventListener(
+  "touchmove",
+  (e) => {
+    // 阻止页面上下滚动
+    e.preventDefault();
+  },
+  { passive: false }
+);
 
-  if (Math.abs(dx) > Math.abs(dy)) {
-    if (dx > 20) move("right");
-    else if (dx < -20) move("left");
-  } else {
-    if (dy > 20) move("down");
-    else if (dy < -20) move("up");
-  }
-}, { passive: true });
+gameContainerEl.addEventListener(
+  "touchend",
+  (e) => {
+    if (e.changedTouches.length === 0) return;
+    const t = e.changedTouches[0];
+    const dx = t.clientX - startX;
+    const dy = t.clientY - startY;
 
-// ====== 键盘控制 ======
-document.addEventListener("keydown", e => {
+    const absX = Math.abs(dx);
+    const absY = Math.abs(dy);
+    const threshold = 30; // 滑动阈值
+
+    if (absX < threshold && absY < threshold) {
+      return;
+    }
+
+    if (absX > absY) {
+      if (dx > 0) move("right");
+      else move("left");
+    } else {
+      if (dy > 0) move("down");
+      else move("up");
+    }
+  },
+  { passive: false }
+);
+
+// ===== 键盘控制（PC） =====
+document.addEventListener("keydown", (e) => {
   if (e.key === "ArrowLeft") move("left");
   if (e.key === "ArrowRight") move("right");
   if (e.key === "ArrowUp") move("up");
   if (e.key === "ArrowDown") move("down");
 });
 
-// ====== 按钮事件 ======
+// ===== 按钮事件 =====
 restartBtn.onclick = newGame;
 tryAgainBtn.onclick = newGame;
 undoBtn.onclick = undo;
 
-// 主题切换
 themeBtn.onclick = () => {
   if (document.body.classList.contains("light")) {
     document.body.classList.remove("light");
@@ -330,7 +349,7 @@ themeBtn.onclick = () => {
   }
 };
 
-// ====== 启动 ======
+// ===== 启动 =====
 createGrid();
 loadBestScore();
 newGame();

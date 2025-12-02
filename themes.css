@@ -1,10 +1,10 @@
-/* 亮色主题 */
+/* 亮色主题变量 */
 body.light {
   --grid-bg: #bbada0;
   --cell-empty: #cdc1b4;
 }
 
-/* 暗色主题 */
+/* 暗色主题变量 */
 body.dark {
   --grid-bg: #2b2b2b;
   --cell-empty: #3d3d3d;

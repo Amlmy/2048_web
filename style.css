@@ -4,7 +4,7 @@
   box-sizing: border-box;
 }
 
-/* 让整体页面居中显示 */
+/* 页面整体居中 */
 body {
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   display: flex;
@@ -13,7 +13,7 @@ body {
   min-height: 100vh;
 }
 
-/* 主题下只控制背景和字体颜色 */
+/* 主题只控制背景和字体颜色 */
 body.light {
   background: #faf8ef;
   color: #776e65;
@@ -23,11 +23,12 @@ body.dark {
   color: #eee;
 }
 
-/* 容器居中+适当阴影 */
+/* 主容器 */
 .container {
   padding: 20px;
   border-radius: 8px;
   box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+  background: transparent;
 }
 
 .header {
@@ -88,14 +89,16 @@ body.dark {
   opacity: 0.9;
 }
 
+/* 棋盘：自适应手机宽度，最大 400px */
 .game-container {
-  width: 400px;
-  height: 400px;
+  width: min(90vw, 400px);
+  height: min(90vw, 400px);
   background: var(--grid-bg);
   margin-top: 20px;
   border-radius: 10px;
   position: relative;
   padding: 10px;
+  touch-action: none; /* 禁用浏览器在棋盘区域默认滑动行为 */
 }
 
 .grid {
@@ -130,7 +133,6 @@ body.dark {
 .cell-32 { background: #f67c5f; color: #f9f6f2; }
 .cell-64 { background: #f65e3b; color: #f9f6f2; }
 .cell-128 { background: #edcf72; color: #f9f6f2; font-size: 26px; }
-cell-256 { background: #edcc61; color: #f9f6f2; font-size: 26px; }
 .cell-256 { background: #edcc61; color: #f9f6f2; font-size: 26px; }
 .cell-512 { background: #edc850; color: #f9f6f2; font-size: 26px; }
 .cell-1024 { background: #edc53f; color: #f9f6f2; font-size: 22px; }
@@ -150,14 +152,4 @@ cell-256 { background: #edcc61; color: #f9f6f2; font-size: 26px; }
 
 .overlay.show {
   display: flex;
-}
-
-@media (max-width: 480px) {
-  .game-container {
-    width: 320px;
-    height: 320px;
-  }
-  .title {
-    font-size: 36px;
-  }
 }
